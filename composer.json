@@ -1,0 +1,24 @@
+{
+    "name": "ingruz/rest",
+    "description": "",
+    "authors": [
+        {
+            "name": "Emanuele Ingrosso",
+            "email": "ingro85@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "4.2.*",
+        "dingo/api": "0.*"
+    },
+    "autoload": {
+        "classmap": [
+            "src/migrations"
+        ],
+        "psr-0": {
+            "Ingruz\\Rest\\": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}
