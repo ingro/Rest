@@ -1,6 +1,8 @@
 {
     "name": "ingruz/rest",
-    "description": "",
+    "description": "Laravel rest package base on Dingo",
+    "keywords": ["laravel"],
+    "license": "MIT",
     "authors": [
         {
             "name": "Emanuele Ingrosso",
