@@ -1,4 +1,6 @@
 Rest
 ====
 
-Rest package per Laravel based on Dingo
+Rest package for Laravel based on Dingo
+
+Documentation coming soon :)
