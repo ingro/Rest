@@ -13,6 +13,7 @@ class DBQueryHelper {
     protected $perPage = 20;
 
     protected $operands = array(
+        '=' => '=',
         'gt' => '>',
         'gte' => '>=',
         'lt' => '<',
