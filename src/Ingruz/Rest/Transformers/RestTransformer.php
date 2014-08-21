@@ -12,9 +12,16 @@ class RestTransformer extends Fractal\TransformerAbstract {
         $this->helper = new Helpers();
     }
 
-    protected function transformNested($models, $nestedTransformerClass)
+    protected function transformNestedItem($model, $nestedTransformerClass)
     {
-        $resource = new Fractal\Resource\Item($models, new $nestedTransformerClass);
+        $resource = new Fractal\Resource\Item($model, new $nestedTransformerClass);
+
+        return $this->fractal->createData($resource)->toArray()['data'];
+    }
+
+    protected function transformNestedCollection($models, $nestedTransformerClass)
+    {
+        $resource = new Fractal\Resource\Collection($models, new $nestedTransformerClass);
 
         return $this->fractal->createData($resource)->toArray()['data'];
     }
