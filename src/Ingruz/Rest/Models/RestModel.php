@@ -79,6 +79,16 @@ abstract class RestModel extends Model {
         {
             return $model->afterSave();
         });
+
+        self::deleting(function($model)
+        {
+            return $model->beforeDelete();
+        });
+
+        self::deleted(function($model)
+        {
+            return $model->afterDelete();
+        });
     }
 
     /**
@@ -143,37 +153,6 @@ abstract class RestModel extends Model {
         // return $query->orderBy('id');
     }
 
-    // public static function getList()
-    // {
-    // 	$istance = new static;
-    // 	$builder = new RestQueryBuilder($istance);
-
-    // 	return $builder->getData();
-    // }
-
-    // public function getItem()
-    // {
-    // 	return $this->toRestData();
-    // }
-
-    // public static function createItem($data)
-    // {
-    // 	$istance = new static;
-    // 	$istance->fill($data);
-
-    // 	return $istance;
-    // }
-
-    // public function editItem($data)
-    // {
-    // 	return $this->update($data);
-    // }
-
-    // public function deleteItem()
-    // {
-    // 	return $this->delete();
-    // }
-
     /**
      * Return the model validation errors
      *
@@ -184,15 +163,10 @@ abstract class RestModel extends Model {
         return $this->validationErrors->toArray();
     }
 
-    // public function toRestData($list = false)
-    // {
-    // 	return $this->toArray();
-    // }
-
     /**
      * Action to be executed before the model is saved on the database
      *
-     * @return boolean
+     * @return bool
      */
     protected function beforeSave()
     {
@@ -202,9 +176,29 @@ abstract class RestModel extends Model {
     /**
      * Action to be executed after the model is saved on the database
      *
-     * @return boolean
+     * @return bool
      */
     protected function afterSave()
+    {
+        return true;
+    }
+
+    /**
+     * Action to be executed before the model will be deleted from the database
+     *
+     * @return bool
+     */
+    protected function beforeDelete()
+    {
+        return true;
+    }
+
+    /**
+     * Action to be executed after the model has been deleted from the database
+     *
+     * @return bool
+     */
+    protected function afterDelete()
     {
         return true;
     }
