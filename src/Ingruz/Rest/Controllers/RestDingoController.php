@@ -134,7 +134,9 @@ class RestDingoController extends Controller implements RestControllerInterface 
             return $this->respondNotProcessable('Unable to delete the selected '.ucfirst($this->baseClass));
         }
 
-        return $this->baseClass.' deleted successfully';
+        $message = $this->baseClass.' deleted successfully';
+
+        return compact('message');
     }
 
     /**
