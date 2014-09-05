@@ -99,7 +99,17 @@ class DBQueryHelper {
             {
                 foreach ($fields as $field)
                 {
-                    $q->orWhere($field, 'LIKE', '%'.$term.'%');
+                    if (strpos($field, '.') === FALSE)
+                    {
+                        $q->orWhere($field, 'LIKE', '%'.$term.'%');
+                    } else
+                    {
+                        $bits = explode('.', $field);
+                        $q->orWhereHas($bits[0], function($q) use ($bits, $term)
+                        {
+                            $q->where($bits[1], 'LIKE', '%'.$term.'%');
+                        });
+                    }
                 }
             });
         }
