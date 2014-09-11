@@ -254,7 +254,7 @@ class DBQueryHelper {
         } else
         {
             $bits = explode('.', $field);
-            $this->query->orWhereHas($bits[0], function($q) use ($bits, $operand, $fieldValue)
+            $this->query->whereHas($bits[0], function($q) use ($bits, $operand, $fieldValue)
             {
                 $q->where($bits[1], $operand, $fieldValue);
             });
