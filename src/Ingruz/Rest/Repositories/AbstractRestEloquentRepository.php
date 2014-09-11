@@ -1,15 +1,20 @@
 <?php namespace Ingruz\Rest\Repositories;
 
-use Ingruz\Rest\Helpers\DBQueryHelper as RestQueryBuilder;
+use Ingruz\Rest\Helpers\DBQueryHelper as RestQueryHelper;
+use Illuminate\Support\Facades\Input;
 
 abstract class AbstractRestEloquentRepository implements RestRepositoryInterface {
 
+    /**
+     * @var \Ingruz\Rest\Models\RestModel;
+     */
     protected $model;
 
     /**
      * Make a new instance of the entity to query on
      *
      * @param array $with
+     * @return mixed
      */
     public function make(array $with = array())
     {
@@ -29,11 +34,37 @@ abstract class AbstractRestEloquentRepository implements RestRepositoryInterface
         return $query->get();
     }
 
+    /**
+     * Return items paged
+     *
+     * @param array $with
+     * @return array|mixed
+     */
     public function allPaged(array $with = array())
     {
-        $builder = new RestQueryBuilder($this->model);
+        $helper = $this->getQueryHelper();
 
-        return $builder->getData();
+        return $helper->getData();
+    }
+
+    /**
+     * Get the query helper istance
+     *
+     * @return RestQueryHelper
+     */
+    protected function getQueryHelper()
+    {
+        return new RestQueryHelper($this->model, $this->getQueryHelperOptions());
+    }
+
+    /**
+     * Get the query helper options
+     *
+     * @return mixed
+     */
+    protected function getQueryHelperOptions()
+    {
+        return Input::only('filter','query','top','orderby','orderdir');
     }
 
     /**

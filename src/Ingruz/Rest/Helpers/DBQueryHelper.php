@@ -1,38 +1,92 @@
 <?php namespace Ingruz\Rest\Helpers;
 
-use Illuminate\Support\Facades\Request;
 use Ingruz\Rest\Exceptions\OperandNotFoundException;
+use Ingruz\Rest\Models\RestModel;
 use League\Fractal;
-use Config;
 
 class DBQueryHelper {
 
+    /**
+     * @var RestModel
+     */
     protected $item;
+
+    /**
+     * @var mixed
+     */
     protected $query;
     /*protected $page = 1;*/
-    protected $perPage = 20;
 
+    /**
+     * @var integer
+     */
+    protected $perPage;
+
+    /**
+     * @var array
+     */
+    protected $defaults = [
+        'filter' => null,
+        'query' => null,
+        'orderby' => null,
+        'orderdir' => 'asc',
+        'top' => 20
+    ];
+
+    /**
+     * @var array
+     */
+    protected $options = [];
+
+    /**
+     * @var \League\Fractal\TransformerAbstract
+     */
+    protected $transformerClass;
+
+    /**
+     * @var array
+     */
     protected $operands = array(
         '=' => '=',
         'gt' => '>',
         'gte' => '>=',
         'lt' => '<',
         'lte' => '<=',
-        'like' => 'LIKE'
+        'like' => 'LIKE',
+        'in' => 'in'
     );
 
-    public function __construct( \Ingruz\Rest\Models\RestModel $istance )
+    /**
+     * @param RestModel $istance
+     * @param array $options
+     */
+    public function __construct( RestModel $istance, array $options = [] )
     {
         $this->item = $istance;
         $this->fractal = new Fractal\Manager();
 
+        $this->options = $this->mergeDefaults($options, $this->defaults);
+
         $this->setTransformerClass();
         $this->setPerPage();
+    }
 
-        /*if (Request::get('currentPage'))
+    /**
+     * @param array $data
+     * @param array $defaults
+     * @return array
+     */
+    protected function mergeDefaults($data, $defaults)
+    {
+        foreach ($defaults as $field => $value)
         {
-            $this->page = (int) Request::get('currentPage');
-        }*/
+            if ( ! isset($data[$field]))
+            {
+                $data[$field] = $value;
+            }
+        }
+
+        return $data;
     }
 
     /**
@@ -50,12 +104,7 @@ class DBQueryHelper {
      */
     protected function setPerPage()
     {
-        $top = Request::get('top');
-
-        if ( ! empty($top) )
-        {
-            $this->perPage = Request::get('top');
-        }
+        $this->perPage = (int) $this->options['top'];
     }
 
     /*public function getData()
@@ -78,6 +127,11 @@ class DBQueryHelper {
         return $this->getItemsModels($idsList, $total);
     }*/
 
+    /**
+     * Return the data filter by the options
+     *
+     * @return array
+     */
     public function getData()
     {
         $this->buildQuery();
@@ -99,14 +153,17 @@ class DBQueryHelper {
         return $data;
     }
 
+    /**
+     * @return mixed
+     */
     protected function buildQuery()
     {
         $staticItem = get_class($this->item);
         $this->query = $staticItem::listConditions();
 
-        if(Request::get('filter'))
+        if ( ! empty($this->options['filter']))
         {
-            $term = Request::get('filter');
+            $term = $this->options['filter'];
 
             $fields = $this->item->getFullSearchFields();
 
@@ -129,9 +186,9 @@ class DBQueryHelper {
             });
         }
 
-        if(Request::get('query'))
+        if ( ! empty($this->options['query']))
         {
-            $fields = $this->getQueryFields();
+            $fields = $this->getQueryFields($this->options['query']);
 
             foreach( $fields as $field )
             {
@@ -185,11 +242,18 @@ class DBQueryHelper {
         return $data;
     }*/
 
-    protected function getQueryFields()
+    /**
+     * @param string $query
+     * @return array
+     */
+    protected function getQueryFields($query)
     {
-        return explode('::', Request::get('query'));
+        return explode('::', $query);
     }
 
+    /**
+     * @param string $chunk
+     */
     protected function addQueryFilter($chunk)
     {
         if ( $chunk !== "" )
@@ -206,12 +270,15 @@ class DBQueryHelper {
         }
     }
 
+    /**
+     * @param $query
+     */
     protected function setItemsOrder($query)
     {
-        if(Request::get('orderby'))
+        if ( ! empty($this->options['orderby']))
         {
-            $orderField = Request::get('orderby');
-            $orderDir = Request::get('orderdir') ? Request::get('orderdir') : 'asc';
+            $orderField = $this->options['orderby'];
+            $orderDir = $this->options['orderdir'];
 
             $query->orderBy($orderField, $orderDir);
         } else
@@ -220,6 +287,9 @@ class DBQueryHelper {
         }
     }
 
+    /**
+     * @param array $chunk
+     */
     protected function addEqualCondition($chunk)
     {
         if( $chunk[1] !== "" )
@@ -228,6 +298,9 @@ class DBQueryHelper {
         }
     }
 
+    /**
+     * @param array $chunk
+     */
     protected function addOtherCondition($chunk)
     {
         try
@@ -244,6 +317,11 @@ class DBQueryHelper {
         }
     }
 
+    /**
+     * @param string $field
+     * @param string $operand
+     * @param mixed $value
+     */
     protected function addConditionToQuery($field, $operand, $value)
     {
         $fieldValue = ($operand === 'LIKE') ? '%'.$value.'%' : $value;
@@ -261,6 +339,11 @@ class DBQueryHelper {
         }
     }
 
+    /**
+     * @param string $code
+     * @return string
+     * @throws OperandNotFoundException
+     */
     protected function getOperand($code)
     {
         if ( ! array_key_exists(strtolower($code), $this->operands))
