@@ -53,7 +53,10 @@ class RestDingoController extends Controller implements RestControllerInterface 
             return $this->respondNotFound('Unable to fetch the selected resource');
         }
 
-        return $list;
+        $resource = new Fractal\Resource\Collection($list->getCollection(), new $this->transformerClass);
+        $resource->setPaginator(new Fractal\Pagination\IlluminatePaginatorAdapter($models));
+
+        return $this->fractal->createData($resource)->toArray();
 //        return Response::api()->withCollection($list, new $this->transformerClass);
     }
 

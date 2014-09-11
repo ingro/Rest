@@ -145,12 +145,14 @@ class DBQueryHelper {
 
         $models = $this->query->paginate($this->perPage);
 
-        $resource = new Fractal\Resource\Collection($models->getCollection(), new $this->transformerClass);
-        $resource->setPaginator(new Fractal\Pagination\IlluminatePaginatorAdapter($models));
+        return $models;
 
-        $data = $this->fractal->createData($resource)->toArray();
-
-        return $data;
+//        $resource = new Fractal\Resource\Collection($models->getCollection(), new $this->transformerClass);
+//        $resource->setPaginator(new Fractal\Pagination\IlluminatePaginatorAdapter($models));
+//
+//        $data = $this->fractal->createData($resource)->toArray();
+//
+//        return $data;
     }
 
     /**
