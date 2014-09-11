@@ -26,15 +26,30 @@ class DBQueryHelper {
         $this->item = $istance;
         $this->fractal = new Fractal\Manager();
 
-        $pieces = explode('\\', get_class($this->item));
-
-        $this->transformerClass = reset($pieces).'\\Transformers\\'.end($pieces).'Transformer';
+        $this->setTransformerClass();
+        $this->setPerPage();
 
         /*if (Request::get('currentPage'))
         {
             $this->page = (int) Request::get('currentPage');
         }*/
+    }
 
+    /**
+     * Set the Transformer Class for the current item
+     */
+    protected function setTransformerClass()
+    {
+        $pieces = explode('\\', get_class($this->item));
+
+        $this->transformerClass = reset($pieces).'\\Transformers\\'.end($pieces).'Transformer';
+    }
+
+    /**
+     * Set the number of items to be returned by the paginator
+     */
+    protected function setPerPage()
+    {
         $top = Request::get('top');
 
         if ( ! empty($top) )
