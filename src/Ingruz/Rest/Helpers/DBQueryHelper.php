@@ -222,7 +222,10 @@ class DBQueryHelper {
 
     protected function addEqualCondition($chunk)
     {
-        if( $chunk[1] !== "" ) $this->query->where($chunk[0], $chunk[1]);
+        if( $chunk[1] !== "" )
+        {
+            $this->addConditionToQuery($chunk[0], '=', $chunk[1]);
+        }
     }
 
     protected function addOtherCondition($chunk)
@@ -237,9 +240,24 @@ class DBQueryHelper {
 
         if( $chunk[2] !== "" )
         {
-            $value = ($operand === 'LIKE') ? '%'.$chunk[2].'%' : $chunk[2];
+            $this->addConditionToQuery($chunk[0], $operand, $chunk[2]);
+        }
+    }
 
-            $this->query->where($chunk[0], $operand, $value);
+    protected function addConditionToQuery($field, $operand, $value)
+    {
+        $fieldValue = ($operand === 'LIKE') ? '%'.$value.'%' : $value;
+
+        if (strpos($field, '.') === FALSE)
+        {
+            $this->query->where($field, $operand, $fieldValue);
+        } else
+        {
+            $bits = explode('.', $field);
+            $this->query->orWhereHas($bits[0], function($q) use ($bits, $operand, $fieldValue)
+            {
+                $q->where($bits[1], $operand, $fieldValue);
+            });
         }
     }
 
