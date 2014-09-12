@@ -54,7 +54,7 @@ class RestDingoController extends Controller implements RestControllerInterface 
         }
 
         $resource = new Fractal\Resource\Collection($list->getCollection(), new $this->transformerClass);
-        $resource->setPaginator(new Fractal\Pagination\IlluminatePaginatorAdapter($models));
+        $resource->setPaginator(new Fractal\Pagination\IlluminatePaginatorAdapter($list));
 
         return $this->fractal->createData($resource)->toArray();
 //        return Response::api()->withCollection($list, new $this->transformerClass);
