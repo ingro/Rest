@@ -67,7 +67,6 @@ class DBQueryHelper {
 
         $this->options = $this->mergeDefaults($options, $this->defaults);
 
-        $this->setTransformerClass();
         $this->setPerPage();
     }
 
@@ -92,12 +91,12 @@ class DBQueryHelper {
     /**
      * Set the Transformer Class for the current item
      */
-    protected function setTransformerClass()
+    /*protected function setTransformerClass()
     {
         $pieces = explode('\\', get_class($this->item));
 
         $this->transformerClass = reset($pieces).'\\Transformers\\'.end($pieces).'Transformer';
-    }
+    }*/
 
     /**
      * Set the number of items to be returned by the paginator
