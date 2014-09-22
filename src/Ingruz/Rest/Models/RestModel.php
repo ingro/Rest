@@ -282,6 +282,11 @@ abstract class RestModel extends Model {
         $rules = static::$rules;
         $output = array();
 
+        if (empty ($rules))
+        {
+            return $output;
+        }
+
         if ($this->exists)
         {
             $merged = (isset($rules['update'])) ? array_merge_recursive($rules['save'], $rules['update']) : $rules['save'];
