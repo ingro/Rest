@@ -30,7 +30,8 @@ class DBQueryHelper {
         'query' => null,
         'orderby' => null,
         'orderdir' => 'asc',
-        'top' => 20
+        'top' => 20,
+        'paginate' => true
     ];
 
     /**
@@ -67,7 +68,10 @@ class DBQueryHelper {
 
         $this->options = $this->mergeDefaults($options, $this->defaults);
 
-        $this->setPerPage();
+        if($this->options['paginate'])
+        {
+            $this->setPerPage();
+        }
     }
 
     /**
@@ -142,16 +146,9 @@ class DBQueryHelper {
             $this->query->with($eagerTables);
         }
 
-        $models = $this->query->paginate($this->perPage);
+        $models = ($this->options['paginate']) ? $this->query->paginate($this->perPage) : $this->query->get();
 
         return $models;
-
-//        $resource = new Fractal\Resource\Collection($models->getCollection(), new $this->transformerClass);
-//        $resource->setPaginator(new Fractal\Pagination\IlluminatePaginatorAdapter($models));
-//
-//        $data = $this->fractal->createData($resource)->toArray();
-//
-//        return $data;
     }
 
     /**
