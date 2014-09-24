@@ -55,8 +55,24 @@ abstract class RestModel extends Model {
      */
     protected $fullSearchFields = array();
 
+    /**
+     * Array of relationships to be eager loaded
+     *
+     * @var array
+     */
     protected $eagerTables = array();
 
+
+    /**
+     * Array of query scopes to be applied
+     *
+     * @var array
+     */
+    protected $applicableScopes = array();
+
+    /**
+     * @param array $attributes
+     */
     public function __construct( array $attributes = array() )
     {
         parent::__construct( $attributes );
@@ -262,14 +278,28 @@ abstract class RestModel extends Model {
         return $this->purgeable;
     }
 
+    /**
+     * @return array
+     */
     public function getFullSearchFields()
     {
         return $this->fullSearchFields;
     }
 
+    /**
+     * @return array
+     */
     public function getEagerTables()
     {
         return $this->eagerTables;
+    }
+
+    /**
+     * @return array
+     */
+    public function getApplicableScopes()
+    {
+       return $this->applicableScopes;
     }
 
     /**

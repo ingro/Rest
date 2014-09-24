@@ -159,6 +159,16 @@ class DBQueryHelper {
         $staticItem = get_class($this->item);
         $this->query = $staticItem::listConditions();
 
+        $scopes = $this->item->getApplicableScopes();
+
+        if ( ! empty($scopes))
+        {
+            foreach ($scopes as $scope)
+            {
+                $this->query->{$scope}();
+            }
+        }
+
         if ( ! empty($this->options['filter']))
         {
             $term = $this->options['filter'];
