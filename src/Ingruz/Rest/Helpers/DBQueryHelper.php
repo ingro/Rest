@@ -334,17 +334,24 @@ class DBQueryHelper {
     {
         $fieldValue = ($operand === 'LIKE') ? '%'.$value.'%' : $value;
 
-        if ($operand === 'in') {
-            $this->query->whereIn($field, explode(',', $value));
-        } else if (strpos($field, '.') === FALSE)
+        if (strpos($field, '.') === FALSE)
         {
-            $this->query->where($field, $operand, $fieldValue);
+            if ($operand === 'in') {
+                $this->query->whereIn($field, explode(',', $value));
+            } else
+            {
+                $this->query->where($field, $operand, $fieldValue);
+            }
         } else
         {
             $bits = explode('.', $field);
             $this->query->whereHas($bits[0], function($q) use ($bits, $operand, $fieldValue)
             {
-                $q->where($bits[1], $operand, $fieldValue);
+                if ($operand !== 'in') {
+                    $q->where($bits[1], $operand, $fieldValue);
+                } else {
+                    $q->whereIn($bits[1], explode(',', $fieldValue));
+                }
             });
         }
     }
