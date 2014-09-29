@@ -334,7 +334,9 @@ class DBQueryHelper {
     {
         $fieldValue = ($operand === 'LIKE') ? '%'.$value.'%' : $value;
 
-        if (strpos($field, '.') === FALSE)
+        if ($operand === 'in') {
+            $this->query->whereIn($field, explode(',', $value));
+        } else if (strpos($field, '.') === FALSE)
         {
             $this->query->where($field, $operand, $fieldValue);
         } else
