@@ -54,7 +54,8 @@ class DBQueryHelper {
         'lt' => '<',
         'lte' => '<=',
         'like' => 'LIKE',
-        'in' => 'in'
+        'in' => 'in',
+        'notin' => 'notIn'
     );
 
     /**
@@ -308,6 +309,7 @@ class DBQueryHelper {
 
     /**
      * @param array $chunk
+     * @return void
      */
     protected function addOtherCondition($chunk)
     {
@@ -334,10 +336,16 @@ class DBQueryHelper {
     {
         $fieldValue = ($operand === 'LIKE') ? '%'.$value.'%' : $value;
 
+        \Log::info($field . $operand);
+
         if (strpos($field, '.') === FALSE)
         {
-            if ($operand === 'in') {
+            if ($operand === 'in')
+            {
                 $this->query->whereIn($field, explode(',', $value));
+            } else if ($operand === 'notIn')
+            {
+                $this->query->whereNotIn($field, explode(',', $value));
             } else
             {
                 $this->query->where($field, $operand, $fieldValue);
@@ -347,10 +355,15 @@ class DBQueryHelper {
             $bits = explode('.', $field);
             $this->query->whereHas($bits[0], function($q) use ($bits, $operand, $fieldValue)
             {
-                if ($operand !== 'in') {
-                    $q->where($bits[1], $operand, $fieldValue);
-                } else {
+                if ($operand === 'in')
+                {
                     $q->whereIn($bits[1], explode(',', $fieldValue));
+                } else if ($operand === 'notIn')
+                {
+                    $q->whereNotIn($bits[1], explode(',', $fieldValue));
+                } else
+                {
+                    $q->where($bits[1], $operand, $fieldValue);
                 }
             });
         }
