@@ -1,5 +1,6 @@
 <?php namespace Ingruz\Rest\Helpers;
 
+use Illuminate\Database\Query\Expression;
 use Ingruz\Rest\Exceptions\OperandNotFoundException;
 use Ingruz\Rest\Models\RestModel;
 use League\Fractal;
@@ -138,16 +139,22 @@ class DBQueryHelper {
      */
     public function getData()
     {
-        $this->buildQuery();
-
-        $eagerTables = $this->item->getEagerTables();
-
-        if( ! empty($eagerTables) )
+        /**
+         * Eloquent's built in "paginate" method does not work well when the query contains "join", "having", or "groupby"
+         * so to make things work more reliably we just create the paginator object by hand after running the query
+         * TODO: find a way to not use the Paginator Facade
+         */
+        if ($this->options['paginate'])
         {
-            $this->query->with($eagerTables);
-        }
+            $currentPage = \Paginator::getCurrentPage();
 
-        $models = ($this->options['paginate']) ? $this->query->paginate($this->perPage) : $this->query->get();
+            $total = (int) $this->getQuery()->count();
+            $slice = $this->getQuery()->forPage($currentPage, $this->perPage)->get();
+
+            $models = \Paginator::make($slice->all(), $total, $this->perPage);
+        } else {
+            $models =  $this->getQuery()->get();
+        }
 
         return $models;
     }
@@ -207,7 +214,24 @@ class DBQueryHelper {
 
         $this->setItemsOrder($this->query);
 
+        $eagerTables = $this->item->getEagerTables();
+
+        if( ! empty($eagerTables) )
+        {
+            $this->query->with($eagerTables);
+        }
+
         return $this->query;
+    }
+
+    protected function getQuery()
+    {
+        if (! $this->query)
+        {
+            $this->buildQuery();
+        }
+
+        return clone($this->query);
     }
 
     /*protected function getItemsTotal()
