@@ -193,9 +193,10 @@ class DBQueryHelper {
                     } else
                     {
                         $bits = explode('.', $field);
-                        $q->orWhereHas($bits[0], function($q) use ($bits, $term)
+                        $nestedField = str_replace('|', '.', $bits[1]);
+                        $q->orWhereHas($bits[0], function($q) use ($bits, $term, $nestedField)
                         {
-                            $q->where($bits[1], 'LIKE', '%'.$term.'%');
+                            $q->where($nestedField, 'LIKE', '%'.$term.'%');
                         });
                     }
                 }
@@ -379,15 +380,16 @@ class DBQueryHelper {
             $bits = explode('.', $field);
             $this->query->whereHas($bits[0], function($q) use ($bits, $operand, $fieldValue)
             {
+                $nestedField = str_replace('|', '.', $bits[1]);
                 if ($operand === 'in')
                 {
-                    $q->whereIn($bits[1], explode(',', $fieldValue));
+                    $q->whereIn($nestedField, explode(',', $fieldValue));
                 } else if ($operand === 'notIn')
                 {
-                    $q->whereNotIn($bits[1], explode(',', $fieldValue));
+                    $q->whereNotIn($nestedField, explode(',', $fieldValue));
                 } else
                 {
-                    $q->where($bits[1], $operand, $fieldValue);
+                    $q->where($nestedField, $operand, $fieldValue);
                 }
             });
         }
