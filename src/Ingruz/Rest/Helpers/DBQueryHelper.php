@@ -50,6 +50,10 @@ class DBQueryHelper {
      */
     protected $operands = array(
         '=' => '=',
+        '>' => '>',
+        '>=' => '>=',
+        '<' => '<',
+        '<=' => '<=',
         'gt' => '>',
         'gte' => '>=',
         'lt' => '<',
@@ -58,6 +62,11 @@ class DBQueryHelper {
         'in' => 'in',
         'notin' => 'notIn'
     );
+
+    /**
+     * @var
+     */
+    protected $purgeQueryFields = [];
 
     /**
      * @param RestModel $istance
@@ -206,6 +215,7 @@ class DBQueryHelper {
         if ( ! empty($this->options['query']))
         {
             $fields = $this->getQueryFields($this->options['query']);
+            $this->purgeQueryFields = $this->item->getPurgeQueryFields();
 
             foreach( $fields as $field )
             {
@@ -286,13 +296,19 @@ class DBQueryHelper {
     }
 
     /**
-     * @param string $chunk
+     * @param $chunk
+     * @return bool
      */
     protected function addQueryFilter($chunk)
     {
         if ( $chunk !== "" )
         {
             $sub = explode('||', $chunk);
+
+            if (in_array($sub[0], $this->purgeQueryFields))
+            {
+                return false;
+            }
 
             if ( count($sub) === 2 )
             {
@@ -360,8 +376,6 @@ class DBQueryHelper {
     protected function addConditionToQuery($field, $operand, $value)
     {
         $fieldValue = ($operand === 'LIKE') ? '%'.$value.'%' : $value;
-
-        \Log::info($field . $operand);
 
         if (strpos($field, '.') === FALSE)
         {

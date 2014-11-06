@@ -71,6 +71,11 @@ abstract class RestModel extends Model {
     protected $applicableScopes = array();
 
     /**
+     * @var array
+     */
+    protected $purgeQueryFields = array();
+
+    /**
      * @param array $attributes
      */
     public function __construct( array $attributes = array() )
@@ -276,6 +281,14 @@ abstract class RestModel extends Model {
     public function getPurgeAttributes()
     {
         return $this->purgeable;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPurgeQueryFields()
+    {
+        return $this->purgeQueryFields;
     }
 
     /**
