@@ -1,9 +1,7 @@
 <?php namespace Ingruz\Rest\Controllers;
 
-use Dingo\Api\Routing\Controller;
-use Dingo\Api\Dispatcher;
-use Dingo\Api\Auth\Shield;
-use Illuminate\Support\Facades\App;
+use Dingo\Api\Routing\ControllerTrait;
+use Illuminate\Routing\Controller;
 use Response;
 use Input;
 use League\Fractal;
@@ -12,16 +10,15 @@ use Ingruz\Rest\Exceptions\ValidationErrorException as ValidationErrorException;
 
 class RestDingoController extends Controller implements RestControllerInterface {
 
+    use ControllerTrait;
+
     protected $repo;
     protected $fractal;
     protected $baseClass;
     protected $transformerClass;
 
-    public function __construct(Fractal\Manager $fractal, Application $app, Dispatcher $api, Shield $auth)
+    public function __construct(Fractal\Manager $fractal, Application $app)
     {
-        $this->api  = $api;
-        $this->auth = $auth;
-
         $this->fractal = $fractal;
 
         $namespace = $app['config']->get('rest::namespace');
@@ -57,7 +54,7 @@ class RestDingoController extends Controller implements RestControllerInterface 
         $resource->setPaginator(new Fractal\Pagination\IlluminatePaginatorAdapter($list));
 
         return $this->fractal->createData($resource)->toArray();
-//        return Response::api()->withCollection($list, new $this->transformerClass);
+//        return $this->response->collection($list, new $this->transformerClass);
     }
 
     /**
@@ -75,7 +72,7 @@ class RestDingoController extends Controller implements RestControllerInterface 
             return $this->respondNotValid($exception);
         }
 
-        return Response::api()->withItem($item, new $this->transformerClass);
+        return $this->response->item($item, new $this->transformerClass);
     }
 
     /**
@@ -93,7 +90,7 @@ class RestDingoController extends Controller implements RestControllerInterface 
             return $this->respondNotFound();
         }
 
-        return Response::api()->withItem($item, new $this->transformerClass);
+        return $this->response->item($item, new $this->transformerClass);
     }
 
     /**
@@ -119,7 +116,7 @@ class RestDingoController extends Controller implements RestControllerInterface 
 
         $item = $this->repo->getById($id);
 
-        return Response::api()->withItem($item, new $this->transformerClass);
+        return $this->response->item($item, new $this->transformerClass);
     }
 
     /**
@@ -151,7 +148,7 @@ class RestDingoController extends Controller implements RestControllerInterface 
      */
     protected function respondWithError($message, $statusCode)
     {
-        return Response::api()->withError($message, $statusCode);
+        return $this->response->error($message, $statusCode);
     }
 
     /**
