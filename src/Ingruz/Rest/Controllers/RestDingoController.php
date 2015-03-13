@@ -21,6 +21,11 @@ class RestDingoController extends Controller implements RestControllerInterface 
     {
         $this->fractal = $fractal;
 
+        if (isset($_GET['include']))
+        {
+            $this->fractal->parseIncludes($_GET['include']);
+        }
+
         $namespace = $app['config']->get('rest::namespace');
 
         $pieces = explode('\\', get_class($this));
