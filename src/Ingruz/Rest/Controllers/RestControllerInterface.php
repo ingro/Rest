@@ -39,4 +39,4 @@ interface RestControllerInterface {
      * @return Response
      */
     public function destroy($id);
-} 
+}
